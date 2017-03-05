@@ -33,6 +33,10 @@ vet:
 	@echo "+ $@"
 	@go vet $(shell go list ./... | grep -v vendor)
 
+assets:
+	@echo "+ $@"
+	@go-bindata -o assets.go assets/...
+
 clean:
 	@echo "+ $@"
 	@rm -rf reg
