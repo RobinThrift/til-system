@@ -17,7 +17,7 @@ func TestInvalidMethodType(t *testing.T) {
 	request := httptest.NewRequest("GET", "/add", nil)
 	response := httptest.NewRecorder()
 
-	handleRequest(writerNOOP)(response, request)
+	handleRequest(writerNOOP, "")(response, request)
 
 	if response.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("Expected status code %v, received %v", http.StatusBadRequest, response.Code)
@@ -40,9 +40,10 @@ func TestInvalidMethodType(t *testing.T) {
 func TestPostValidBody(t *testing.T) {
 	reqJSON := "{\"posted_date\":\"1488701255\",\"posted_from\":\"test\",\"content\":\"hello from test\"}"
 	request := httptest.NewRequest("POST", "/add", strings.NewReader(reqJSON))
+	request.Header.Set("Content-Type", "application/json")
 	response := httptest.NewRecorder()
 
-	handleRequest(writerNOOP)(response, request)
+	handleRequest(writerNOOP, "")(response, request)
 
 	if response.Code != http.StatusCreated {
 		t.Fatalf("Expected status code %v, received %v", http.StatusCreated, response.Code)

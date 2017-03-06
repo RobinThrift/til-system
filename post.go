@@ -99,6 +99,9 @@ func writePost(post *TILPost, root string) (string, error) {
 	}
 
 	err = ioutil.WriteFile(filePath, contents.Bytes(), 0644)
+	if err != nil {
+		return "", err
+	}
 
 	return filePath, nil
 }

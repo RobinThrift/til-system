@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -16,18 +17,48 @@ func isPostMethod(method string) bool {
 	return method == http.MethodPost
 }
 
+func isJSONRequest(r *http.Request) bool {
+	return r.Header.Get("Content-Type") == "application/json"
+}
+
+func addJSONContentType(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+}
+
 func replyWithError(w http.ResponseWriter, msg string, code int) {
-	errJSON, _ := json.Marshal(httpErrorMsg{msg})
-	http.Error(w, string(errJSON[:]), code)
+	addJSONContentType(w)
+	w.WriteHeader(code)
+	err := json.NewEncoder(w).Encode(httpErrorMsg{msg})
+	if err != nil {
+		panic(err)
+	}
+}
+
+func validatePost(post *TILPost) error {
+	if len(post.Content) == 0 {
+		return errors.New("Please provide content")
+	}
+
+	twoDaysAgo := time.Now().AddDate(0, 0, -2)
+	if post.PostedDate.Time.Before(twoDaysAgo) {
+		return errors.New("Post is too old")
+	}
+	
+	return nil
 }
 
 // WritePost functions should write a TILPost to a file
 type WritePost func(*TILPost, string) (string, error)
 
-func handleRequest(writer WritePost) func(w http.ResponseWriter, r *http.Request) {
+func handleRequest(writer WritePost, basePath string) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !isPostMethod(r.Method) {
 			replyWithError(w, "invalid request method", http.StatusMethodNotAllowed)
+			return
+		}
+
+		if !isJSONRequest(r) {
+			replyWithError(w, "invalid content type", http.StatusBadRequest)
 			return
 		}
 
@@ -42,15 +73,21 @@ func handleRequest(writer WritePost) func(w http.ResponseWriter, r *http.Request
 		json.Unmarshal(body, &post)
 		defer r.Body.Close()
 
-		_, err = writer(&post, "")
+		err = validatePost(&post)
+		if err != nil {
+			replyWithError(w, "invalid json", http.StatusBadRequest)
+			return
+		}
+
+		_, err = writer(&post, basePath)
 
 		if err != nil {
 			replyWithError(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
+		addJSONContentType(w)
 		w.WriteHeader(http.StatusCreated)
-
 		json.NewEncoder(w).Encode(post)
 	}
 }
@@ -75,7 +112,7 @@ func auth(secret string, f http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func startServer(port string, secret string) {
-	http.HandleFunc("/add", logging(auth(secret, handleRequest(writePost))))
-	http.ListenAndServe(port, nil)
+func startServer(port string, secret string, basePath string) {
+	http.HandleFunc("/add", logging(auth(secret, handleRequest(writePost, basePath))))
+	http.ListenAndServe(":" + port, nil)
 }
