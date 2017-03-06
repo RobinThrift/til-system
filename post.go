@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-type WritePost func(*TILPost, string) error
-
 type unixTime struct {
 	Time time.Time
 }
@@ -30,6 +28,8 @@ func (t unixTime) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + strconv.FormatInt(t.Time.Unix(), 10) + `"`), nil
 }
 
+// TILPost is the main struct to describe a TIL item.
+// In most cases this will be constructed from the received JSON.
 type TILPost struct {
 	PostedDate unixTime `json:"posted_date"`
 	PostedFrom string   `json:"posted_from"`
@@ -54,7 +54,7 @@ func loadTemplate(templatePath string) (*template.Template, error) {
 }
 
 
-type TemplateData struct {
+type templateData struct {
 	Title string
 	Date string
 	Slug string
@@ -70,7 +70,7 @@ func renderPost(post *TILPost) (*bytes.Buffer, error) {
 
 	lines := strings.Split(post.Content, "\n")
 
-	data := TemplateData{
+	data := templateData{
 		Title: lines[0],
 		Content: strings.Join(lines[1:], "\n"),
 		Date: post.PostedDate.Time.Format("2006-01-02"),

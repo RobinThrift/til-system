@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type HTTPErrorMsg struct {
+type httpErrorMsg struct {
 	Message string `json:"message"`
 }
 
@@ -17,9 +17,12 @@ func isPostMethod(method string) bool {
 }
 
 func replyWithError(w http.ResponseWriter, msg string, code int) {
-	errJSON, _ := json.Marshal(HTTPErrorMsg{msg})
+	errJSON, _ := json.Marshal(httpErrorMsg{msg})
 	http.Error(w, string(errJSON[:]), code)
 }
+
+// WritePost functions should write a TILPost to a file
+type WritePost func(*TILPost, string) error
 
 func handleRequest(writer WritePost) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
