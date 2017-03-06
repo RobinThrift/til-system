@@ -22,7 +22,7 @@ func replyWithError(w http.ResponseWriter, msg string, code int) {
 }
 
 // WritePost functions should write a TILPost to a file
-type WritePost func(*TILPost, string) error
+type WritePost func(*TILPost, string) (string, error)
 
 func handleRequest(writer WritePost) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +42,7 @@ func handleRequest(writer WritePost) func(w http.ResponseWriter, r *http.Request
 		json.Unmarshal(body, &post)
 		defer r.Body.Close()
 
-		err = writer(&post, "")
+		_, err = writer(&post, "")
 
 		if err != nil {
 			replyWithError(w, err.Error(), http.StatusInternalServerError)

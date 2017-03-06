@@ -2,7 +2,10 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
+	"io/ioutil"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -53,11 +56,10 @@ func loadTemplate(templatePath string) (*template.Template, error) {
 	return tmpl, nil
 }
 
-
 type templateData struct {
-	Title string
-	Date string
-	Slug string
+	Title   string
+	Date    string
+	Slug    string
 	Content string
 }
 
@@ -71,10 +73,10 @@ func renderPost(post *TILPost) (*bytes.Buffer, error) {
 	lines := strings.Split(post.Content, "\n")
 
 	data := templateData{
-		Title: lines[0],
+		Title:   lines[0],
 		Content: strings.Join(lines[1:], "\n"),
-		Date: post.PostedDate.Time.Format("2006-01-02"),
-		Slug: strings.Replace(strings.ToLower(lines[0]), " ", "-", -1),
+		Date:    post.PostedDate.Time.Format("2006-01-02"),
+		Slug:    strings.Replace(strings.ToLower(lines[0]), " ", "-", -1),
 	}
 
 	buff := new(bytes.Buffer)
@@ -87,6 +89,16 @@ func renderPost(post *TILPost) (*bytes.Buffer, error) {
 	return buff, nil
 }
 
-func writePost(post *TILPost, root string) error {
-	return nil
+func writePost(post *TILPost, root string) (string, error) {
+	fileName := fmt.Sprintf("til-%v.md", post.PostedDate.Time.Format("2006-01-02"))
+	filePath := path.Join(root, fileName)
+
+	contents, err := renderPost(post)
+	if err != nil {
+		return "", err
+	}
+
+	err = ioutil.WriteFile(filePath, contents.Bytes(), 0644)
+
+	return filePath, nil
 }

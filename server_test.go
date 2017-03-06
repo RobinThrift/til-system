@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-func writerNOOP(p *TILPost, root string) error {
-	return nil
+func writerNOOP(p *TILPost, root string) (string, error) {
+	return "", nil
 }
 
 func TestInvalidMethodType(t *testing.T) {
