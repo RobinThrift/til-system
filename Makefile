@@ -25,9 +25,9 @@ lint:
 	@echo "+ $@"
 	@golint ./... | grep -v vendor | tee /dev/stderr
 
-test: fmt lint vet
+test: lint vet
 	@echo "+ $@"
-	@go test -v -tags "$(BUILDTAGS) cgo" $(shell go list ./... | grep -v vendor)
+	@go test -v $(shell go list ./... | grep -v vendor)
 
 vet:
 	@echo "+ $@"

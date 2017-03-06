@@ -1,5 +1,7 @@
 # TIL System
 
+[![Build Status](https://travis-ci.org/RobinThrift/til-system.svg?branch=master)](https://travis-ci.org/RobinThrift/til-system)
+
 # Dependencies
 
 All dependencies are committed in the `vendor` folder, so this is `go get`-able, and you don't need any extra tool to develop it,
