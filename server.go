@@ -39,11 +39,6 @@ func validatePost(post *TILPost) error {
 		return errors.New("Please provide content")
 	}
 
-	twoDaysAgo := time.Now().AddDate(0, 0, -2)
-	if post.PostedDate.Time.Before(twoDaysAgo) {
-		return errors.New("Post is too old")
-	}
-	
 	return nil
 }
 
