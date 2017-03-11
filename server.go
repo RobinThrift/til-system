@@ -42,10 +42,12 @@ func validatePost(post *TILPost) error {
 	return nil
 }
 
-// WritePost functions should write a TILPost to a file
-type WritePost func(*TILPost, string) (string, error)
 
-func handleRequest(writer WritePost, basePath string) func(w http.ResponseWriter, r *http.Request) {
+// PostProcessor functions are passed a post and a base directory whith which they should do
+// something useful.
+type PostProcessor func(*TILPost, string) error
+
+func handleRequest(processor PostProcessor, basePath string) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !isPostMethod(r.Method) {
 			replyWithError(w, "invalid request method", http.StatusMethodNotAllowed)
@@ -74,7 +76,7 @@ func handleRequest(writer WritePost, basePath string) func(w http.ResponseWriter
 			return
 		}
 
-		_, err = writer(&post, basePath)
+		err = processor(&post, basePath)
 
 		if err != nil {
 			replyWithError(w, err.Error(), http.StatusInternalServerError)
@@ -108,6 +110,6 @@ func auth(secret string, f http.HandlerFunc) http.HandlerFunc {
 }
 
 func startServer(port string, secret string, basePath string) {
-	http.HandleFunc("/add", logging(auth(secret, handleRequest(writePost, basePath))))
+	http.HandleFunc("/add", logging(auth(secret, handleRequest(injectCmdFunction(osExec), basePath))))
 	http.ListenAndServe(":" + port, nil)
 }

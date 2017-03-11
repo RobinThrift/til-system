@@ -71,3 +71,21 @@ func TestWritePost(t *testing.T) {
 		t.Fatalf("Expected: \n%v\ngot:\n%v", string(fixture), string(writtenContents))
 	}
 }
+
+func TestProcessPost(t *testing.T) {
+	rootTmpDir, _ := ioutil.TempDir("", "post_process_test")
+	defer os.RemoveAll(rootTmpDir)
+
+	calledTimes := 0
+	cmd := func(name string, args ...string) error {
+		calledTimes += 1
+		return nil
+	}
+
+	testPost := getTestPost()
+	processPost(cmd, testPost, rootTmpDir)
+
+	if calledTimes != 3 {
+		t.Errorf("command function called an incorrect number of times")
+	}
+}

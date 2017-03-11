@@ -105,3 +105,28 @@ func writePost(post *TILPost, root string) (string, error) {
 
 	return filePath, nil
 }
+
+func processPost(cmd execCommand, post *TILPost, root string) error {
+	filepath, err := writePost(post, root)
+	if err != nil {
+		return err
+	}
+
+	err = addAndCommitPost(cmd, filepath)
+	if err != nil {
+		return err
+	}
+
+	err = gitPush(cmd)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func injectCmdFunction(cmd execCommand) PostProcessor {
+	return func(post *TILPost, root string) error {
+		return processPost(cmd, post, root);
+	}
+}
