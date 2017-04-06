@@ -43,19 +43,27 @@ func validatePost(post *TILPost) error {
 }
 
 
+func isValidRequest(w http.ResponseWriter, r *http.Request) bool {
+	if !isPostMethod(r.Method) {
+		replyWithError(w, "invalid request method", http.StatusMethodNotAllowed)
+		return false
+	}
+
+	if !isJSONRequest(r) {
+		replyWithError(w, "invalid content type", http.StatusBadRequest)
+		return false
+	}
+
+	return true
+}
+
 // PostProcessor functions are passed a post and a base directory whith which they should do
 // something useful.
-type PostProcessor func(*TILPost, string) error
+type PostProcessor func(*TILPost, string, string) error
 
-func handleRequest(processor PostProcessor, basePath string) func(w http.ResponseWriter, r *http.Request) {
+func handleRequest(processor PostProcessor, repoURL string, postDir string) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !isPostMethod(r.Method) {
-			replyWithError(w, "invalid request method", http.StatusMethodNotAllowed)
-			return
-		}
-
-		if !isJSONRequest(r) {
-			replyWithError(w, "invalid content type", http.StatusBadRequest)
+		if !isValidRequest(w, r) {
 			return
 		}
 
@@ -76,7 +84,7 @@ func handleRequest(processor PostProcessor, basePath string) func(w http.Respons
 			return
 		}
 
-		err = processor(&post, basePath)
+		err = processor(&post, repoURL, postDir)
 
 		if err != nil {
 			replyWithError(w, err.Error(), http.StatusInternalServerError)
@@ -109,7 +117,9 @@ func auth(secret string, f http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func startServer(port string, secret string, basePath string) {
-	http.HandleFunc("/add", logging(auth(secret, handleRequest(injectCmdFunction(osExec), basePath))))
+func startServer(port string, secret string, repoURL string, postDir string) {
+	handleFunc := handleRequest(injectCmdFunction(osExec), repoURL, postDir)
+
+	http.HandleFunc("/add", logging(auth(secret, handleFunc)))
 	http.ListenAndServe(":" + port, nil)
 }

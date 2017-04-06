@@ -13,9 +13,8 @@ func getenv(key, fallback string) string {
 func main() {
 	port := getenv("TIL_PORT", "3000")
 	secret := getenv("TIL_SECRET", "PLEASE_SET_A_SECRET")
-	basePath := getenv("TIL_BASE_PATH", "_tils")
+	repoURL := getenv("TIL_REPO_URL", "INVALIAD_REPO_URL")
+	postDir := getenv("TIL_POST_DIR", "content/til")
 
-	os.MkdirAll(basePath, os.FileMode(0755))
-
-	startServer(port, secret, basePath)
+	startServer(port, secret, repoURL, postDir)
 }

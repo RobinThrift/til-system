@@ -73,9 +73,6 @@ func TestWritePost(t *testing.T) {
 }
 
 func TestProcessPost(t *testing.T) {
-	rootTmpDir, _ := ioutil.TempDir("", "post_process_test")
-	defer os.RemoveAll(rootTmpDir)
-
 	calledTimes := 0
 	cmd := func(name string, args ...string) error {
 		calledTimes++
@@ -83,9 +80,13 @@ func TestProcessPost(t *testing.T) {
 	}
 
 	testPost := getTestPost()
-	processPost(cmd, testPost, rootTmpDir)
+	err := processPost(cmd, testPost, "", "content/til")
 
-	if calledTimes != 3 {
-		t.Errorf("command function called an incorrect number of times")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if calledTimes != 4 {
+		t.Errorf("command function called an incorrect number of times: %v instead of %v", calledTimes, 4)
 	}
 }

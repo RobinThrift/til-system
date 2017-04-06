@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func processorNOOP(p *TILPost, root string) error {
+func processorNOOP(p *TILPost, repoURL string, postDir string) error {
 	return nil
 }
 
@@ -17,7 +17,7 @@ func TestInvalidMethodType(t *testing.T) {
 	request := httptest.NewRequest("GET", "/add", nil)
 	response := httptest.NewRecorder()
 
-	handleRequest(processorNOOP, "")(response, request)
+	handleRequest(processorNOOP, "", "")(response, request)
 
 	if response.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("Expected status code %v, received %v", http.StatusBadRequest, response.Code)
@@ -43,7 +43,7 @@ func TestPostValidBody(t *testing.T) {
 	request.Header.Set("Content-Type", "application/json")
 	response := httptest.NewRecorder()
 
-	handleRequest(processorNOOP, "")(response, request)
+	handleRequest(processorNOOP, "", "")(response, request)
 
 	if response.Code != http.StatusCreated {
 		t.Fatalf("Expected status code %v, received %v", http.StatusCreated, response.Code)

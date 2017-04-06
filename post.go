@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -106,18 +108,42 @@ func writePost(post *TILPost, root string) (string, error) {
 	return filePath, nil
 }
 
-func processPost(cmd execCommand, post *TILPost, root string) error {
-	filepath, err := writePost(post, root)
+func processPost(cmd execCommand, post *TILPost, repoURL string, postDir string) error {
+	tmpRepoDir, err := ioutil.TempDir("", "til_system_repo")
 	if err != nil {
 		return err
 	}
 
-	err = addAndCommitPost(cmd, filepath)
+	defer func() {
+		err = removeGitRepo(tmpRepoDir)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+
+	err = gitClone(cmd, repoURL, tmpRepoDir)
 	if err != nil {
 		return err
 	}
 
-	err = gitPush(cmd)
+	fullPostDir := filepath.Join(tmpRepoDir, postDir)
+	err = os.MkdirAll(fullPostDir, os.FileMode(0755))
+	if err != nil {
+		return err
+	}
+	
+	filepath, err := writePost(post, fullPostDir)
+	if err != nil {
+		return err
+	}
+
+	err = addAndCommitPost(cmd, tmpRepoDir, filepath)
+	if err != nil {
+		return err
+	}
+
+	err = gitPush(cmd, tmpRepoDir)
 	if err != nil {
 		return err
 	}
@@ -126,7 +152,7 @@ func processPost(cmd execCommand, post *TILPost, root string) error {
 }
 
 func injectCmdFunction(cmd execCommand) PostProcessor {
-	return func(post *TILPost, root string) error {
-		return processPost(cmd, post, root);
+	return func(post *TILPost, repoURL string, postDir string) error {
+		return processPost(cmd, post, repoURL, postDir);
 	}
 }
