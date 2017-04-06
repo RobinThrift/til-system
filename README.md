@@ -17,3 +17,25 @@ The server uses [go-bindata](https://github.com/jteeuwen/go-bindata) to embed th
 the code generation for embedding. Make sure to commit the generated file.
 
 To install `go-bindata` simply run: `go get -u github.com/jteeuwen/go-bindata/...`
+
+
+# Posting Data
+
+To create a new TIL entry `POST` data to `/add`:
+
+```json
+{
+    "posted_date": UNIX_TIMESTAMP,
+    "posted_from": SOME_KIND_OF_UA,
+    "content": CONTENT_STRING
+}
+```
+
+If the post was successful you will receive the same data with a unique `id` back. Otherwise you will receive an error JSON response (and corresponding HTTP status code):
+
+```json
+{
+    "code": CODE,
+    "message": STRING
+}
+```
