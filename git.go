@@ -21,6 +21,14 @@ func osExec(name string, args ...string) error {
 	return nil
 }
 
+func gitClone(cmd execCommand, repoURL string, targetDir string) error {
+	return cmd("git", "clone", repoURL, targetDir)
+}
+
+func removeGitRepo(cmd execCommand, targetDir string) error {
+	return cmd("rm", "-rf", targetDir)
+}
+
 func gitAdd(cmd execCommand, filepath string) error {
 	return cmd("git", "add", filepath)
 }

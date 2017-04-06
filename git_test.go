@@ -1,6 +1,75 @@
 package main
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
+
+func TestGitClone(t *testing.T) {
+	called := false
+	cmd := func(name string, args ...string) error {
+		called = true
+		if name != "git" {
+			t.Fatalf("command name wasn't 'git' :O")
+		}
+
+		expectedArgs := []string{
+			"clone",
+			"https://github.com/RobinThrift/RobinThrift.com",
+			"./RobinThrift.com",
+		}
+
+		if !reflect.DeepEqual(args, expectedArgs) {
+			t.Fatalf("argument mismatch %s", args)
+		}
+
+		return nil
+	}
+
+	gitClone(
+		cmd,
+		"https://github.com/RobinThrift/RobinThrift.com",
+		"./RobinThrift.com",
+	)
+
+	if !called {
+		t.Errorf("cmd function wasn't called :(")
+	}
+}
+
+func TestRemoveGitRepo(t *testing.T) {
+	called := false
+	cmd := func(name string, args ...string) error {
+		called = true
+		if name != "rm" {
+			t.Fatalf("command name wasn't 'rm' :O")
+		}
+
+		expectedArgs := []string{
+			"-rf",
+			"./RobinThrift.com",
+		}
+
+		if !reflect.DeepEqual(args, expectedArgs) {
+			t.Fatalf("argument mismatch %s", args)
+		}
+
+		return nil
+	}
+
+	err := removeGitRepo(
+		cmd,
+		"./RobinThrift.com",
+	)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !called {
+		t.Errorf("cmd function wasn't called :(")
+	}
+}
 
 func TestGitAdd(t *testing.T) {
 	called := false
