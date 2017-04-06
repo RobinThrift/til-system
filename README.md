@@ -31,7 +31,7 @@ To create a new TIL entry `POST` data to `/add`:
 }
 ```
 
-If the post was successful you will receive the same data with a unique `id` back. Otherwise you will receive an error JSON response (and corresponding HTTP status code):
+If the post was successful you will receive the same data back. Otherwise you will receive an error JSON response (and corresponding HTTP status code):
 
 ```json
 {
