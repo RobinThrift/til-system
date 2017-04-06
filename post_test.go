@@ -78,7 +78,7 @@ func TestProcessPost(t *testing.T) {
 
 	calledTimes := 0
 	cmd := func(name string, args ...string) error {
-		calledTimes += 1
+		calledTimes++
 		return nil
 	}
 

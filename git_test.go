@@ -83,7 +83,7 @@ func TestGitPush(t *testing.T) {
 func TestAddAndCommitPost(t *testing.T) {
 	calledTimes := 0
 	cmd := func(name string, args ...string) error {
-		calledTimes += 1
+		calledTimes++
 		if name != "git" {
 			t.Fatalf("command name wasn't 'git' :O")
 		}
