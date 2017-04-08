@@ -72,13 +72,14 @@ func renderPost(post *TILPost) (*bytes.Buffer, error) {
 		return nil, err
 	}
 
-	lines := strings.Split(post.Content, "\n")
+	readableDate := post.PostedDate.Time.Format("Monday, 02 January 2006")
+	date := post.PostedDate.Time.Format("2006-01-02")
 
 	data := templateData{
-		Title:   lines[0],
-		Content: strings.Join(lines[1:], "\n"),
-		Date:    post.PostedDate.Time.Format("2006-01-02"),
-		Slug:    strings.Replace(strings.ToLower(lines[0]), " ", "-", -1),
+		Title:   readableDate,
+		Content: post.Content,
+		Date:    date,
+		Slug:    date,
 	}
 
 	buff := new(bytes.Buffer)
@@ -121,7 +122,6 @@ func processPost(cmd execCommand, post *TILPost, repoURL string, postDir string)
 		}
 	}()
 
-
 	err = gitClone(cmd, repoURL, tmpRepoDir)
 	if err != nil {
 		return err
@@ -132,7 +132,7 @@ func processPost(cmd execCommand, post *TILPost, repoURL string, postDir string)
 	if err != nil {
 		return err
 	}
-	
+
 	filepath, err := writePost(post, fullPostDir)
 	if err != nil {
 		return err
@@ -153,6 +153,6 @@ func processPost(cmd execCommand, post *TILPost, repoURL string, postDir string)
 
 func injectCmdFunction(cmd execCommand) PostProcessor {
 	return func(post *TILPost, repoURL string, postDir string) error {
-		return processPost(cmd, post, repoURL, postDir);
+		return processPost(cmd, post, repoURL, postDir)
 	}
 }

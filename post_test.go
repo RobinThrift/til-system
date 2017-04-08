@@ -15,7 +15,7 @@ func getTestPost() *TILPost {
 	}
 
 	return &TILPost{
-		Content: "Go Is Awesome\nTIL that Go is awesome!",
+		Content: "Go is awesome!",
 		PostedDate: unixTime{testTime},
 		PostedFrom: "",
 	}
