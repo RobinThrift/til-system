@@ -13,7 +13,7 @@ To install `gvt` simply run: `go get -u github.com/FiloSottile/gvt`
 
 # Asset generation
 
-The server uses [go-bindata](https://github.com/jteeuwen/go-bindata) to embed the asset files inside of the binary. Rnu `make assets` to run
+The server uses [go-bindata](https://github.com/jteeuwen/go-bindata) to embed the asset files inside of the binary. Run `make assets` to run
 the code generation for embedding. Make sure to commit the generated file.
 
 To install `go-bindata` simply run: `go get -u github.com/jteeuwen/go-bindata/...`
