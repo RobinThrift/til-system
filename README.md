@@ -19,6 +19,16 @@ the code generation for embedding. Make sure to commit the generated file.
 To install `go-bindata` simply run: `go get -u github.com/jteeuwen/go-bindata/...`
 
 
+# Running
+
+There are a few environment variables than can be used to configure the server:
+
+- `TIL_PORT`: sets the port to listen on (default: `3000`)
+- `TIL_SECRET`: sets the secret that needs to be provided by the clients (**required**)
+- `TIL_REPO_URL`: specify a url or path to the git repository which will be cloned and pushed (**required**)
+- `TIL_POST_DIR`: path inside the repo where the post files will be created (default: `content/til`)
+
+
 # Posting Data
 
 To create a new TIL entry `POST` data to `/add`:
