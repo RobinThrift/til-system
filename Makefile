@@ -13,6 +13,10 @@ build:
 	@echo "+ $@"
 	@go build -tags "$(BUILDTAGS) cgo" .
 
+build-linux:
+	@echo "+ $@"
+	@GOOS=linux GOARCH=amd64 go build .
+
 static:
 	@echo "+ $@"
 	CGO_ENABLED=1 go build -tags "$(BUILDTAGS) cgo static_build" -ldflags "-w -extldflags -static" -o reg .
